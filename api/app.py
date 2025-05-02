@@ -4,8 +4,9 @@ from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
 
+from handler.handle_sumary import summarize_food_labels
 from handler.handle_validate_summary import validate_fix_typo_labels
-from schema.schema import AnalyzeValidateResponse, AnalyzeRequest
+from schema.schema import AnalyzeValidateResponse, AnalyzeRequest, MakeSummaryFoodRequest
 
 SOURCES = {
     "nutrition_info": "http://localhost:3000/uploads/nutrition_info/nutrition_info-y6r718o4f8b.jpeg"
@@ -38,6 +39,21 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"message": "Hello World"}
+
+
+@app.post("/summary_foods")
+def summary_foods(req: MakeSummaryFoodRequest):
+    try:
+        data = {
+            "ingredients": [ing.dict() for ing in req.ingredients],
+            "nutrition_info": [nut.dict() for nut in req.nutrition_info],
+        }
+        result = summarize_food_labels(data)
+        if result is None:
+            raise HTTPException(status_code=204, detail="No content")
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/validate-fix-typo", response_model=AnalyzeValidateResponse)
