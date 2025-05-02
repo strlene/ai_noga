@@ -87,7 +87,7 @@ def _extract_json(raw: str):
         return json.loads(raw)
     except json.JSONDecodeError:
         cleaned = _strip_fences(raw)
-        try
+        try:
             return json.loads(cleaned)
         except json.JSONDecodeError:
             match = _JSON_RE.search(cleaned)
