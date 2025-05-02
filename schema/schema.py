@@ -104,3 +104,18 @@ class RecommendationDataItem(BaseModel):
 class RecommendationResponse(BaseModel):
     status: str
     data: List[RecommendationDataItem]
+
+
+class ValidatedItem(BaseModel):
+    original: str
+    corrected: str
+    is_valid: Optional[bool] = None
+    is_nutrition: Optional[bool] = None
+
+class ValidateResponse(BaseModel):
+    validated_ingredients: List[ValidatedItem]
+    validated_nutrition_info: List[ValidatedItem]
+
+class AnalyzeValidateResponse(BaseModel):
+    session_id: str
+    result: ValidateResponse
