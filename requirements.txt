@@ -1,0 +1,11 @@
+mysql-connector-python~=9.3.0
+dotenv~=0.9.9
+python-dotenv~=1.1.0
+uvicorn~=0.34.2
+fastapi~=0.115.12
+pydantic~=2.11.4
+google~=3.0.0
+protobuf~=5.29.4
+google-generativeai
+urllib
+mysql.connector

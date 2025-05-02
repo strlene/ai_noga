@@ -7,6 +7,7 @@ import mysql.connector
 import mysql.connector
 from fastapi import HTTPException
 
+from db.database import get_db_connection
 from function.ocr_utils import _extract_json, _GEMINI, OCRContentError, ocr_image
 from model.table_health import GOOD, BAD, NEUTRAL
 
@@ -70,10 +71,57 @@ def map_nutrition_info(raw_nutrition_info: Any) -> List[Dict[str, Any]]:
 
     return mapped
 
+def save_ocr_to_db(sessionid: str, status: str, ingredients: str):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Cek apakah sessionid sudah ada
+        cursor.execute("SELECT COUNT(*) FROM Ocr WHERE sessionid = %s", (sessionid,))
+        (count,) = cursor.fetchone()
+
+        if count > 0:
+            cursor.execute("""
+                UPDATE Ocr
+                SET status = %s, ingredients = %s
+                WHERE sessionid = %s
+            """, (
+                status,
+                ingredients,
+                sessionid
+            ))
+        else:
+            # Jika belum ada, insert baru
+            cursor.execute("""
+                INSERT INTO Ocr (sessionid, status, ingredients)
+                VALUES (%s, %s, %s)
+            """, (
+                sessionid,
+                status,
+                ingredients
+            ))
+
+        conn.commit()
+
+    except mysql.connector.Error as err:
+        raise HTTPException(status_code=500, detail=f"MySQL Error: {err}")
+
+    finally:
+        cursor.close()
+        conn.close()
 
 def analyze_images(sessionId: str, sources: Dict[str, str]):
+    conn = get_db_connection()
+    print("connection", conn)
     data = {
         "nutrition_info": get_nutrition_info(sources["nutrition_info"])
     }
+
+    save_ocr_to_db(
+        sessionid=sessionId,
+        status="success",
+        ingredients=json.dumps(data["nutrition_info"])
+    )
+
     return {"status": "success", "data": data}
 
