@@ -53,11 +53,3 @@ def analyze_default(req: AnalyzeRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-
-if __name__ == "__main__":
-    import uvicorn
-    import os
-
-    port = int(os.environ.get("PORT", 8081))  # ✅ default 8080
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
