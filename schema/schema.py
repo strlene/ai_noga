@@ -74,7 +74,7 @@ class RecognitionFoodResponse(BaseModel):
 
 
 class RawIngredient(BaseModel):
-    nama: str
+    name: str
     status: str
     detail: str
 
@@ -83,7 +83,6 @@ class RawNutritionInfo(BaseModel):
     nilai: Union[int, float, str]
     type: str
     status: str
-    data: Optional[Dict[str, Any]] = None  # no longer required
 
     # if downstream logic needs nilai as string, coerce here:
     @validator("nilai", pre=True)
