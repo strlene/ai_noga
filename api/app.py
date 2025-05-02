@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 
 from handler.handle_sumary import summarize_food_labels
 from handler.handle_validate_summary import validate_fix_typo_labels
-from schema.schema import AnalyzeValidateResponse, AnalyzeRequest, MakeSummaryFoodRequest
+from schema.schema import AnalyzeValidateResponse, AnalyzeRequest, MakeSummaryFoodRequest, ValidateInputSummaryRequest
 
 SOURCES = {
     "nutrition_info": "http://localhost:3000/uploads/nutrition_info/nutrition_info-y6r718o4f8b.jpeg"
@@ -56,12 +56,13 @@ def summary_foods(req: MakeSummaryFoodRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/validate-fix-typo", response_model=AnalyzeValidateResponse)
-def validate_fix_typo(req: AnalyzeRequest):
+@app.post("/validate-fix-typo-ingredient", response_model=AnalyzeValidateResponse)
+def validate_fix_typo(req: ValidateInputSummaryRequest):
+
+    print("request : " , req)
     try:
         data = {
-            "ingredients": req.composition,
-            "nutrition_info": req.nutrition_info
+            "ingredients": req.ingredients,
         }
 
         validated = validate_fix_typo_labels(data)
@@ -69,8 +70,8 @@ def validate_fix_typo(req: AnalyzeRequest):
         if not validated:
             raise HTTPException(status_code=500, detail="Validation failed")
 
+
         return {
-            "session_id": req.session_id,
             "result": validated
         }
 

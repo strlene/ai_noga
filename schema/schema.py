@@ -41,8 +41,17 @@ class RecommendationResponse(BaseModel):
     detail: Optional[str] = None
 
 
+class ItemSummary(BaseModel):
+    nama: str
+    type: str
+    nilai: float
+    status: str
+
+class ValidateInputSummaryRequest(BaseModel):
+    ingredients:List[dict]
+
 class AnalyzeRequest(BaseModel):
-    composition: HttpUrl
+    ingredients: HttpUrl
     nutrition_info: HttpUrl
 
 class AnalyzeResponse(BaseModel):
@@ -113,9 +122,8 @@ class ValidatedItem(BaseModel):
     is_nutrition: Optional[bool] = None
 
 class ValidateResponse(BaseModel):
-    validated_ingredients: List[ValidatedItem]
-    validated_nutrition_info: List[ValidatedItem]
+    validated_ingredients:List[dict]
+    # validated_nutrition_info: List[dict]
 
 class AnalyzeValidateResponse(BaseModel):
-    session_id: str
     result: ValidateResponse

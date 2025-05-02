@@ -1,22 +1,24 @@
-from typing import Dict, Optional, Any
+import json
+from typing import Dict, Any, List, Optional
 
-from function.validate_input_summary import validate_ingredients, validate_nutrition_info
+from function.validate_input_summary import extract_nama_list, validate_ingredients
 
 
-# Main function
-def validate_fix_typo_labels(data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    try:
-        ingredients = data.get("ingredients", [])
-        nutrition_info = data.get("nutrition_info", [])
+# Dummy Gemini call (replace with actual working object)
+# from your_module import _GEMINI
 
-        validated_ingredients = validate_ingredients(ingredients)
-        validated_nutrition = validate_nutrition_info(nutrition_info)
 
-        return {
-            "validated_ingredients": validated_ingredients,
-            "validated_nutrition_info": validated_nutrition
-        }
 
-    except Exception as e:
-        print(f"Validation failed: {e}")
-        return None
+def validate_fix_typo_labels(data: Dict[str, Any]) -> Dict[str, Any]:
+    ingredients = data.get("ingredients", [])
+    ingredient_names = extract_nama_list(ingredients)
+
+    print("ingredients:", ingredient_names)
+
+    validated_ingredients = validate_ingredients(ingredient_names)
+
+    print("validated_ingredients:", validated_ingredients)
+
+    return {
+        "validated_ingredients": validated_ingredients
+    }

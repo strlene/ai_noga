@@ -6,6 +6,12 @@ from typing import Dict, Any, Tuple, List
 import genai
 from fastapi import FastAPI
 
+import google.generativeai as genai
+import os
+
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+# Inisialisasi model Gemini 1.5 Flash
 _GEMINI = genai.GenerativeModel("gemini-1.5-flash")
 app = FastAPI()
 
