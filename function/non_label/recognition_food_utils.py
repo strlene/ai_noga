@@ -79,3 +79,16 @@ def enrich_food_with_gemini(food_name: str) -> Dict[str, Any]:
     except json.JSONDecodeError as e:
         raise ValueError(f"Error parsing Gemini JSON for '{food_name}': {e}\nRaw: {raw}")
 
+def enrich_summary_with_gemini(food_names: List[str]) -> str:
+    prompt = (
+        "You are a professional nutritionist.\n\n"
+        f"Given these ingredients: {', '.join(food_names)}.\n"
+        "Summarize in MAXIMUM 3 short sentences:\n"
+        "- Main nutrients overall.\n"
+        "- General health benefits.\n"
+        "- Potential health risks.\n"
+        "Return plain text only."
+    )
+    resp = _GEMINI.generate_content({"parts": [{"text": prompt}]}, generation_config={"temperature": 0.3})
+    result = (resp.text or "").strip().replace("```", "").strip()
+    return result
