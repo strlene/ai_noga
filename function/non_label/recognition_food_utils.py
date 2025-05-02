@@ -47,3 +47,35 @@ def detect_food_from_image(image_source: Union[str, Path]) -> List[str]:
         raise ValueError(f"Error parsing Gemini output: {e}\nRaw: {raw}")
 
 
+def enrich_food_with_gemini(food_name: str) -> Dict[str, Any]:
+    prompt = (
+        "You are a professional nutritionist and food analyzer.\n"
+        "Your task:\n"
+        f"1. For the ingredient '{food_name}', research the most commonly used ingredients and their serving sizes.\n"
+        "2. For each ingredient, output:\n"
+        "   - name: the ingredient name\n"
+        '   - status: one of "good", "neutral", or "bad"\n'
+        "   - detail: one-sentence explanation (benefit if good, risk if bad, neutral note otherwise)\n"
+        "3. Research the nutrition value of EACH ingredient: protein, carbohydrates, sugar, total fat, saturated fat, sodium.\n"
+        "4. Sum all nutritional values and calculate the average calories per 100 g.\n"
+        "5. Detect any preservatives.\n"
+        "6. If the product is vitamin-rich, contains allergens, or is milk-based, note that in one sentence.\n"
+        "Return ONLY this pure JSON object (no markdown, no extra text):\n"
+        f'{{ "food_name": "{food_name}", "total_calories": "... kcal", '
+        '"nutritional_info": [...], '
+        '"ingredients": [ { "name": "...", "status": "...", "detail": "..." }, ... ], '
+        '"summary": [...] }}'
+    )
+    resp = _GEMINI.generate_content({"parts": [{"text": prompt}]}, generation_config={"temperature": 0.2})
+    raw = (resp.text or "").strip()
+    if raw.startswith("```json"):
+        raw = raw.replace("```json", "").replace("```", "").strip()
+    idx = raw.find("{")
+    if idx > 0:
+        raw = raw[idx:]
+    try:
+        obj, _ = json.JSONDecoder().raw_decode(raw)
+        return obj
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Error parsing Gemini JSON for '{food_name}': {e}\nRaw: {raw}")
+
