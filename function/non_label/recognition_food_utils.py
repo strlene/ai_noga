@@ -92,3 +92,31 @@ def enrich_summary_with_gemini(food_names: List[str]) -> str:
     resp = _GEMINI.generate_content({"parts": [{"text": prompt}]}, generation_config={"temperature": 0.3})
     result = (resp.text or "").strip().replace("```", "").strip()
     return result
+
+
+def enrich_summary_status_with_gemini(food_names: List[str]) -> str:
+    prompt = (
+        "You are a professional nutritionist.\n"
+        "Classify each of the following ingredient names as one of: Good, Neutral, or Bad, based only on the name:\n"
+        f"{', '.join(food_names)}\n"
+        "Respond with a comma-separated list of labels in the same order, with no extra text or punctuation."
+    )
+    resp = _GEMINI.generate_content({"parts": [{"text": prompt}]}, generation_config={"temperature": 0.0})
+    raw = (resp.text or "").strip()
+    if raw.startswith("```") and raw.endswith("```"):
+        raw = raw[3:-3].strip()
+    raw = raw.replace("```", "").strip()
+    if (raw.startswith('"') and raw.endswith('"')) or (raw.startswith("'") and raw.endswith("'")):
+        raw = raw[1:-1].strip()
+    labels = [lbl.strip().capitalize() for lbl in raw.split(",") if lbl.strip()]
+    return labels[0] if labels else "Neutral"
+
+DEFAULT_NUTRITION = [
+    {"nama": "service size",   "status": "", "nilai": 0, "type": "gram"},
+    {"nama": "calories",       "status": "", "nilai": 0, "type": "kilocalorie"},
+    {"nama": "total fat",      "status": "", "nilai": 0, "type": "gram"},
+    {"nama": "saturated fat",  "status": "", "nilai": 0, "type": "gram"},
+    {"nama": "carbohydrates",  "status": "", "nilai": 0, "type": "gram"},
+    {"nama": "sugar",          "status": "", "nilai": 0, "type": "gram"},
+    {"nama": "protein",        "status": "", "nilai": 0, "type": "gram"},
+]
