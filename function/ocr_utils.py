@@ -61,59 +61,59 @@ def _resolve_local(basename: str) -> Path:
                 return p
     raise FileNotFoundError(f"File lokal tidak ditemukan: {basename}")
 
-# def _img_bytes(src: str) -> bytes:
-#     if _is_url(src):
-#         return _download_url(src)
-#     p = Path(src)
-#     return p.read_bytes() if p.is_file() else _resolve_local(src).read_bytes()
-#
-# def _guess_section(src: str) -> str:
-#     return next((s for s in SEARCH_ORDER if s in src), "composition")
-#
-# _JSON_RE = re.compile(r"(\{[\s\S]*?\}|\[[\s\S]*?\])", re.S)
-#
-# def _strip_fences(text: str) -> str:
-#     text = text.strip()
-#     if text.startswith("```"):
-#         nl = text.find("\n")
-#         if nl != -1:
-#             text = text[nl + 1 :]
-#     if text.endswith("```"):
-#         text = text[:-3].rstrip()
-#     return text.strip()
-#
-# def _extract_json(raw: str):
-#     try:
-#         return json.loads(raw)
-#     except json.JSONDecodeError:
-#         cleaned = _strip_fences(raw)
-#         try:
-#             return json.loads(cleaned)
-#         except json.JSONDecodeError:
-#             match = _JSON_RE.search(cleaned)
-#             if match:
-#                 return json.loads(match.group(1))
-#         raise OCRContentError("Gambar tidak mengandung data ingredients atau nutrition info yang valid.")
-#
-# def ocr_image(
-#     source: str,
-#     *,
-#     section: Optional[str] = None,
-#     temperature: float = 0.0,
-# ):
-#     section = section or _guess_section(source)
-#     if section not in _PROMPTS:
-#         raise ValueError(f"Section tak dikenal: {section!r}")
-#
-#     img_bytes = _img_bytes(source)
-#     mime_type = "image/jpeg" if source.lower().endswith((".jpg", ".jpeg")) else "image/png"
-#     img_b64 = base64.b64encode(img_bytes).decode("utf-8")
-#
-#     contents = [{
-#         "parts": [
-#             {"mime_type": mime_type, "data": img_b64},
-#             {"text": _PROMPTS[section]},
-#         ]
-#     }]
-#     resp = _GEMINI.generate_content(contents, generation_config={"temperature": temperature})
-#     return _extract_json(resp.text)
+def _img_bytes(src: str) -> bytes:
+    if _is_url(src):
+        return _download_url(src)
+    p = Path(src)
+    return p.read_bytes() if p.is_file() else _resolve_local(src).read_bytes()
+
+def _guess_section(src: str) -> str:
+    return next((s for s in SEARCH_ORDER if s in src), "composition")
+
+_JSON_RE = re.compile(r"(\{[\s\S]*?\}|\[[\s\S]*?\])", re.S)
+
+def _strip_fences(text: str) -> str:
+    text = text.strip()
+    if text.startswith("```"):
+        nl = text.find("\n")
+        if nl != -1:
+            text = text[nl + 1 :]
+    if text.endswith("```"):
+        text = text[:-3].rstrip()
+    return text.strip()
+
+def _extract_json(raw: str):
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        cleaned = _strip_fences(raw)
+        try
+            return json.loads(cleaned)
+        except json.JSONDecodeError:
+            match = _JSON_RE.search(cleaned)
+            if match:
+                return json.loads(match.group(1))
+        raise OCRContentError("Gambar tidak mengandung data ingredients atau nutrition info yang valid.")
+
+def ocr_image(
+    source: str,
+    *,
+    section: Optional[str] = None,
+    temperature: float = 0.0,
+):
+    section = section or _guess_section(source)
+    if section not in _PROMPTS:
+        raise ValueError(f"Section tak dikenal: {section!r}")
+
+    img_bytes = _img_bytes(source)
+    mime_type = "image/jpeg" if source.lower().endswith((".jpg", ".jpeg")) else "image/png"
+    img_b64 = base64.b64encode(img_bytes).decode("utf-8")
+
+    contents = [{
+        "parts": [
+            {"mime_type": mime_type, "data": img_b64},
+            {"text": _PROMPTS[section]},
+        ]
+    }]
+    resp = _GEMINI.generate_content(contents, generation_config={"temperature": temperature})
+    return _extract_json(resp.text)
