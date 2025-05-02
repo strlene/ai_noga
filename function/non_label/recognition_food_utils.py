@@ -45,3 +45,5 @@ def detect_food_from_image(image_source: Union[str, Path]) -> List[str]:
         return foods
     except Exception as e:
         raise ValueError(f"Error parsing Gemini output: {e}\nRaw: {raw}")
+
+
