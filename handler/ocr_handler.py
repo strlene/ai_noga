@@ -71,34 +71,34 @@ def map_nutrition_info(raw_nutrition_info: Any) -> List[Dict[str, Any]]:
 
     return mapped
 
-def save_ocr_to_db(sessionid: str, status: str, ingredients: str):
+def save_ocr_to_db(sessionid: str, status: str, nutrition_info: str):
     conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
         # Cek apakah sessionid sudah ada
-        cursor.execute("SELECT COUNT(*) FROM Ocr WHERE sessionid = %s", (sessionid,))
+        cursor.execute("SELECT COUNT(*) FROM ocr_table WHERE sessionid = %s", (sessionid,))
         (count,) = cursor.fetchone()
 
         if count > 0:
             cursor.execute("""
-                UPDATE Ocr
-                SET status = %s, ingredients = %s
+                UPDATE ocr_table
+                SET status = %s, nutrition_info = %s
                 WHERE sessionid = %s
             """, (
                 status,
-                ingredients,
+                nutrition_info,
                 sessionid
             ))
         else:
             # Jika belum ada, insert baru
             cursor.execute("""
-                INSERT INTO Ocr (sessionid, status, ingredients)
+                INSERT INTO ocr_table (sessionid, status, nutrition_info)
                 VALUES (%s, %s, %s)
             """, (
                 sessionid,
                 status,
-                ingredients
+                nutrition_info
             ))
 
         conn.commit()
@@ -120,7 +120,7 @@ def analyze_images(sessionId: str, sources: Dict[str, str]):
     save_ocr_to_db(
         sessionid=sessionId,
         status="success",
-        ingredients=json.dumps(data["nutrition_info"])
+        nutrition_info=json.dumps(data["nutrition_info"])
     )
 
     return {"status": "success", "data": data}
