@@ -1,0 +1,38 @@
+
+from fastapi.responses import JSONResponse
+from fastapi.requests import Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException
+
+SOURCES = {
+    "ingredients":  "http://localhost:3000/uploads/composition/composition-4tjcofu8wx.jpeg",
+}
+
+
+app = FastAPI(
+    title="Food-Scanner OCR API",
+    version="0.3.1",
+    description="OCR + Gemini → Ingredients & Nutrition Facts (EN).",
+)
+
+@app.exception_handler(HTTPException)
+async def custom_http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "status": exc.status_code,
+            "error": exc.detail
+        },
+    )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello World"}
