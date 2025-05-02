@@ -5,8 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
 
 from handler.handle_sumary import summarize_food_labels
-from handler.handle_validate_summary import validate_fix_typo_labels
-from schema.schema import AnalyzeValidateResponse, AnalyzeRequest, MakeSummaryFoodRequest, ValidateInputSummaryRequest
+from handler.handle_validate_summary import validate_fix_typo_labels, validate_fix_typo_nutrition_info_labels
+from schema.schema import AnalyzeValidateResponse, AnalyzeRequest, MakeSummaryFoodRequest, ValidateInputSummaryRequest, \
+    ValidateInputNutritionInfoRequest
 
 SOURCES = {
     "nutrition_info": "http://localhost:3000/uploads/nutrition_info/nutrition_info-y6r718o4f8b.jpeg"
@@ -56,7 +57,7 @@ def summary_foods(req: MakeSummaryFoodRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/validate-fix-typo-ingredient", response_model=AnalyzeValidateResponse)
+@app.post("/validate-fix-type-ingredient", response_model=AnalyzeValidateResponse)
 def validate_fix_typo(req: ValidateInputSummaryRequest):
 
     print("request : " , req)
@@ -66,6 +67,29 @@ def validate_fix_typo(req: ValidateInputSummaryRequest):
         }
 
         validated = validate_fix_typo_labels(data)
+
+        if not validated:
+            raise HTTPException(status_code=500, detail="Validation failed")
+
+
+        return {
+            "result": validated
+        }
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/validate-fix-type-nutrition-info", response_model=AnalyzeValidateResponse)
+def validate_fix_typo(req: ValidateInputNutritionInfoRequest):
+
+    try:
+        data = {
+            "nutrition_info": req.nutrition_info,
+        }
+
+        validated =  validate_fix_typo_nutrition_info_labels(data)
 
         if not validated:
             raise HTTPException(status_code=500, detail="Validation failed")

@@ -50,6 +50,11 @@ class ItemSummary(BaseModel):
 class ValidateInputSummaryRequest(BaseModel):
     ingredients:List[dict]
 
+
+class ValidateInputNutritionInfoRequest(BaseModel):
+    nutrition_info:List[dict]
+
+
 class AnalyzeRequest(BaseModel):
     ingredients: HttpUrl
     nutrition_info: HttpUrl
