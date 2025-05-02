@@ -8,3 +8,7 @@ google~=3.0.0
 protobuf~=5.29.4
 google-generativeai
 urllib
+fastapi
+uvicorn
+mysql-connector-python
+python-dotenv

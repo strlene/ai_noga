@@ -52,3 +52,4 @@ def analyze_default(req: AnalyzeRequest):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
